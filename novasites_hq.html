@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaSites HQ — Premium Web Design Agency</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+/* ── RESET & ROOT ── */
+:root{
+  --black:#050508;
+  --dark:#0a0a12;
+  --dark2:#0f0f1a;
+  --blue:#4f8fff;
+  --blue2:#2d6bff;
+  --purple:#8b5cf6;
+  --cyan:#00d4ff;
+  --white:#ffffff;
+  --off:#c8d0f0;
+  --muted:#4a5080;
+  --border:rgba(79,143,255,0.12);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{overflow-x:hidden;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--black);
+  color:var(--white);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── (Buttermax reactive cursor) */
+.ns2-cur{
+  position:fixed;width:12px;height:12px;
+  background:var(--blue);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  left:0;top:0;will-change:transform;
+  transition:width .35s cubic-bezier(.16,1,.3,1),height .35s,background .3s,border-radius .35s;
+  mix-blend-mode:screen;
+}
+.ns2-cur.hover{
+  width:56px;height:56px;
+  background:rgba(79,143,255,0.15);
+  border-radius:50%;
+}
+.ns2-cur.click{
+  width:8px;height:8px;
+  background:var(--cyan);
+}
+.ns2-trail{
+  position:fixed;width:44px;height:44px;
+  border:1.5px solid rgba(79,143,255,0.35);
+  border-radius:50%;
+  pointer-events:none;z-index:99998;
+  left:0;top:0;will-change:transform;
+}
+
+/* ── NOISE TEXTURE ── */
+.ns2-noise{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  opacity:0.028;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CANVAS ── */
+#ns2-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ── LOADER ── (Buttermax style: number countdown) */
+.ns2-loader{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.ns2-loader-content{text-align:center;position:relative;}
+.ns2-loader-word{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(5rem,14vw,14rem);
+  line-height:1;letter-spacing:0.04em;
+  color:var(--white);
+  overflow:hidden;
+}
+.ns2-loader-word span{display:block;transform:translateY(100%);}
+.ns2-loader-sub{
+  font-size:0.65rem;font-weight:400;letter-spacing:0.4em;
+  text-transform:uppercase;color:var(--muted);
+  margin-top:0.8rem;opacity:0;
+}
+.ns2-loader-bar-wrap{
+  position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
+  width:200px;
+}
+.ns2-loader-bar{height:1px;background:rgba(79,143,255,0.2);width:100%;}
+.ns2-loader-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));}
+.ns2-loader-num{
+  font-family:'Bebas Neue',cursive;
+  font-size:0.9rem;letter-spacing:0.2em;
+  color:var(--blue);margin-top:0.5rem;text-align:center;
+}
+
+/* ── NAV ── (Buttermax: minimal, top, blends into bg) */
+.ns2-nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2.5rem;height:68px;
+  transition:all .4s ease;
+}
+.ns2-nav.solid{
+  background:rgba(5,5,8,0.88);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.ns2-nav-logo{
+  font-family:'Bebas Neue',cursive;
+  font-size:1.35rem;letter-spacing:0.08em;
+  color:var(--white);text-decoration:none;cursor:none;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.ns2-logo-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--blue);
+  animation:ns2_pulse 2s ease-in-out infinite;
+}
+@keyframes ns2_pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(79,143,255,0.5);}
+  50%{box-shadow:0 0 0 8px rgba(79,143,255,0);}
+}
+.ns2-nav-links{
+  display:flex;align-items:center;gap:2.5rem;list-style:none;
+}
+.ns2-nav-links a{
+  font-size:0.7rem;font-weight:500;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--muted);
+  text-decoration:none;cursor:none;transition:color .25s;
+}
+.ns2-nav-links a:hover{color:var(--white);}
+.ns2-nav-cta{
+  padding:0.55rem 1.4rem;
+  border:1px solid rgba(79,143,255,0.4)!important;
+  color:var(--blue)!important;
+  position:relative;overflow:hidden;
+}
+.ns2-nav-cta::before{
+  content:'';position:absolute;inset:0;
+  background:var(--blue);transform:scaleX(0);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+  transform-origin:left;z-index:-1;
+}
+.ns2-nav-cta:hover{color:var(--black)!important;}
+.ns2-nav-cta:hover::before{transform:scaleX(1);}
+.ns2-burger{display:none;flex-direction:column;gap:5px;cursor:none;}
+.ns2-burger span{display:block;width:22px;height:1px;background:var(--white);}
+
+/* ── HERO ── (Buttermax: full viewport, massive type, sticky feel) */
+#ns2-hero{
+  position:relative;z-index:2;
+  height:100vh;min-height:700px;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;
+  padding:0 2.5rem 4rem;
+  overflow:hidden;
+}
+.ns2-hero-status{
+  position:absolute;top:5rem;left:2.5rem;
+  display:flex;align-items:center;gap:0.6rem;
+  font-size:0.62rem;font-weight:500;letter-spacing:0.3em;
+  text-transform:uppercase;color:var(--muted);opacity:0;
+}
+.ns2-hero-status-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--blue);
+  animation:ns2_pulse 1.8s ease-in-out infinite;
+}
+.ns2-hero-index{
+  position:absolute;top:5rem;right:2.5rem;
+  font-family:'Bebas Neue',cursive;
+  font-size:0.85rem;letter-spacing:0.2em;
+  color:var(--muted);opacity:0;
+}
+.ns2-hero-main{position:relative;z-index:2;}
+.ns2-hero-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(5.5rem,13.5vw,16rem);
+  line-height:0.87;letter-spacing:0.02em;
+  color:var(--white);
+  overflow:hidden;
+}
+.ns2-title-row{display:block;overflow:hidden;}
+.ns2-title-row-inner{display:flex;align-items:center;gap:1.5rem;transform:translateY(105%);}
+.ns2-title-blue{color:var(--blue);}
+.ns2-title-outline{
+  color:transparent;
+  -webkit-text-stroke:1.5px rgba(255,255,255,0.18);
+}
+.ns2-title-pill{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(79,143,255,0.1);border:1px solid rgba(79,143,255,0.25);
+  border-radius:100px;padding:0.5rem 1.4rem;
+  font-family:'Inter',sans-serif;font-size:0.7rem;
+  font-weight:400;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--blue);flex-shrink:0;
+  transform:translateY(0);
+}
+.ns2-hero-bottom{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-top:2.5rem;position:relative;z-index:2;
+}
+.ns2-hero-desc{
+  font-size:0.88rem;font-weight:300;color:var(--muted);
+  line-height:1.85;max-width:360px;opacity:0;transform:translateY(20px);
+}
+.ns2-hero-actions{
+  display:flex;flex-direction:column;align-items:flex-end;gap:1rem;
+  opacity:0;transform:translateY(20px);
+}
+.ns2-hero-cta{
+  padding:1rem 2.5rem;
+  background:var(--blue);color:var(--black);
+  font-family:'Inter',sans-serif;font-size:0.72rem;
+  font-weight:600;letter-spacing:0.15em;text-transform:uppercase;
+  border:none;cursor:none;transition:all .3s;
+  position:relative;overflow:hidden;
+}
+.ns2-hero-cta::before{
+  content:'';position:absolute;inset:0;
+  background:var(--purple);opacity:0;transition:opacity .3s;
+}
+.ns2-hero-cta:hover::before{opacity:1;}
+.ns2-hero-cta:hover{transform:translateY(-3px);box-shadow:0 16px 50px rgba(79,143,255,0.35);}
+.ns2-hero-cta span{position:relative;z-index:1;color:var(--white);}
+.ns2-hero-scroll{
+  display:flex;align-items:center;gap:0.8rem;
+  font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--muted);opacity:0;
+}
+.ns2-scroll-line{
+  width:40px;height:1px;
+  background:linear-gradient(90deg,var(--blue),transparent);
+  animation:ns2_line 2s ease-in-out infinite;
+}
+@keyframes ns2_line{
+  0%,100%{transform:scaleX(1);opacity:1;}
+  50%{transform:scaleX(0.4);opacity:0.4;}
+}
+
+/* ── MARQUEE ── (Buttermax signature horizontal scroll ticker) */
+.ns2-marquee{
+  position:relative;z-index:2;
+  padding:1.4rem 0;
+  background:var(--blue);
+  overflow:hidden;
+}
+.ns2-marquee-track{
+  display:flex;gap:0;white-space:nowrap;
+  animation:ns2_marq 18s linear infinite;
+}
+.ns2-marquee-item{
+  font-family:'Bebas Neue',cursive;
+  font-size:1.15rem;letter-spacing:0.18em;
+  color:var(--black);padding:0 2.5rem;
+  flex-shrink:0;display:flex;align-items:center;gap:0.8rem;
+}
+.ns2-marq-sep{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(0,0,0,0.25);flex-shrink:0;
+}
+@keyframes ns2_marq{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
+}
+
+/* ── ABOUT / INTRO SECTION ── */
+#ns2-about{
+  position:relative;z-index:2;
+  padding:10rem 2.5rem;
+  background:var(--black);
+  overflow:hidden;
+}
+.ns2-about-inner{
+  max-width:1300px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8rem;align-items:center;
+}
+.ns2-section-label{
+  font-size:0.6rem;font-weight:500;letter-spacing:0.35em;
+  text-transform:uppercase;color:var(--blue);
+  margin-bottom:2.5rem;display:flex;align-items:center;gap:0.7rem;
+}
+.ns2-section-label::before{
+  content:'';width:24px;height:1px;background:var(--blue);
+}
+.ns2-about-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(3.5rem,6vw,7rem);
+  line-height:0.9;letter-spacing:0.02em;
+  color:var(--white);margin-bottom:2.5rem;
+}
+.ns2-about-title em{
+  font-style:normal;color:var(--blue);
+}
+.ns2-about-body{
+  font-size:0.92rem;font-weight:300;color:var(--muted);
+  line-height:1.9;margin-bottom:3rem;
+}
+.ns2-stats-row{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;
+}
+.ns2-stat{}
+.ns2-stat-num{
+  font-family:'Bebas Neue',cursive;
+  font-size:4rem;line-height:1;letter-spacing:0.04em;
+  color:var(--white);margin-bottom:0.2rem;
+}
+.ns2-stat-num .accent{color:var(--blue);}
+.ns2-stat-label{
+  font-size:0.68rem;font-weight:400;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--muted);
+}
+.ns2-about-right{position:relative;}
+.ns2-about-visual{
+  position:relative;background:var(--dark2);
+  border:1px solid var(--border);
+  padding:3rem;overflow:hidden;
+}
+.ns2-about-visual::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+}
+.ns2-services-list{list-style:none;}
+.ns2-service-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.4rem 0;
+  border-bottom:1px solid rgba(79,143,255,0.08);
+  cursor:none;transition:all .25s;
+}
+.ns2-service-row:first-child{border-top:1px solid rgba(79,143,255,0.08);}
+.ns2-service-row:hover .ns2-service-name{color:var(--blue);}
+.ns2-service-row:hover .ns2-service-arrow{transform:translateX(6px);opacity:1;}
+.ns2-service-num{
+  font-family:'Bebas Neue',cursive;font-size:0.85rem;
+  letter-spacing:0.1em;color:var(--muted);width:36px;flex-shrink:0;
+}
+.ns2-service-name{
+  font-size:0.95rem;font-weight:500;color:var(--white);
+  flex:1;padding:0 1rem;transition:color .25s;
+}
+.ns2-service-tag{
+  font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--border);
+  padding:0.25rem 0.7rem;border-radius:20px;
+}
+.ns2-service-arrow{
+  font-size:0.85rem;color:var(--blue);
+  opacity:0.4;transition:all .25s;margin-left:1rem;
+}
+
+/* ── SERVICES DEEP-DIVE ── (Buttermax project grid feel) */
+#ns2-services{
+  position:relative;z-index:2;
+  background:var(--dark);
+  padding:0;
+}
+.ns2-services-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1px;background:var(--border);
+}
+.ns2-srv-card{
+  background:var(--dark);
+  padding:5rem 4rem;
+  position:relative;overflow:hidden;
+  cursor:none;transition:background .4s;
+}
+.ns2-srv-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(79,143,255,0.04),rgba(139,92,246,0.04));
+  opacity:0;transition:opacity .4s;
+}
+.ns2-srv-card:hover::before{opacity:1;}
+.ns2-srv-card::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  transform:scaleX(0);transition:transform .5s cubic-bezier(.16,1,.3,1);
+  transform-origin:left;
+}
+.ns2-srv-card:hover::after{transform:scaleX(1);}
+.ns2-srv-num{
+  font-family:'Bebas Neue',cursive;
+  font-size:5rem;line-height:1;letter-spacing:0.04em;
+  color:rgba(79,143,255,0.08);
+  position:absolute;top:3rem;right:3rem;
+}
+.ns2-srv-icon{
+  width:56px;height:56px;
+  border:1px solid rgba(79,143,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:2rem;
+  background:rgba(79,143,255,0.04);
+  transition:all .3s;
+}
+.ns2-srv-card:hover .ns2-srv-icon{
+  border-color:var(--blue);
+  background:rgba(79,143,255,0.1);
+}
+.ns2-srv-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:2.2rem;letter-spacing:0.04em;
+  color:var(--white);margin-bottom:1.2rem;
+}
+.ns2-srv-desc{
+  font-size:0.88rem;font-weight:300;color:var(--muted);
+  line-height:1.85;margin-bottom:2rem;max-width:380px;
+}
+.ns2-srv-tags{display:flex;flex-wrap:wrap;gap:0.5rem;}
+.ns2-tag{
+  font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--blue);border:1px solid rgba(79,143,255,0.2);
+  padding:0.28rem 0.7rem;border-radius:20px;
+  background:rgba(79,143,255,0.04);
+}
+
+/* ── FULL-BLEED TEXT SECTION ── (Buttermax: pinned kinetic type) */
+#ns2-manifesto{
+  position:relative;z-index:2;
+  padding:8rem 2.5rem;
+  background:var(--dark2);
+  overflow:hidden;
+}
+.ns2-manifesto-inner{max-width:1300px;margin:0 auto;}
+.ns2-manifesto-eyebrow{
+  font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:4rem;
+  display:flex;align-items:center;gap:0.7rem;
+}
+.ns2-manifesto-eyebrow::before{content:'';width:24px;height:1px;background:var(--blue);}
+.ns2-big-line{
+  display:flex;align-items:center;gap:2rem;
+  overflow:hidden;margin-bottom:-0.5rem;
+}
+.ns2-big-line-text{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(5rem,10vw,12rem);
+  line-height:0.88;letter-spacing:0.02em;
+  white-space:nowrap;display:block;
+  transform:translateY(105%);
+}
+.ns2-big-line-text.blue{color:var(--blue);}
+.ns2-big-line-text.outline{
+  color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,0.12);
+}
+.ns2-big-line-badge{
+  flex-shrink:0;
+  background:rgba(79,143,255,0.08);
+  border:1px solid rgba(79,143,255,0.2);
+  padding:0.8rem 1.5rem;border-radius:100px;
+  font-size:0.7rem;font-weight:400;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--blue);
+  transform:translateY(105%);
+}
+
+/* ── PRICING ── */
+#ns2-pricing{
+  position:relative;z-index:2;
+  background:var(--black);
+  padding:8rem 2.5rem;
+}
+.ns2-pricing-header{
+  max-width:1300px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:6rem;align-items:end;margin-bottom:5rem;
+}
+.ns2-pricing-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(4rem,7vw,8rem);
+  line-height:0.88;letter-spacing:0.02em;
+  color:var(--white);
+}
+.ns2-pricing-title span{color:var(--blue);}
+.ns2-pricing-body{
+  font-size:0.9rem;font-weight:300;color:var(--muted);
+  line-height:1.9;
+}
+.ns2-pricing-grid{
+  max-width:1300px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+}
+.ns2-plan{
+  background:var(--dark2);border:1px solid var(--border);
+  padding:3rem 2.5rem;position:relative;overflow:hidden;
+  transition:all .5s cubic-bezier(.16,1,.3,1);cursor:none;
+}
+.ns2-plan::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  transform:scaleX(0);transition:transform .5s cubic-bezier(.16,1,.3,1);
+  transform-origin:left;
+}
+.ns2-plan:hover::before{transform:scaleX(1);}
+.ns2-plan:hover{
+  transform:translateY(-10px);
+  border-color:rgba(79,143,255,0.3);
+  box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 0 1px rgba(79,143,255,0.08);
+}
+.ns2-plan.featured{
+  border-color:rgba(139,92,246,0.35);
+  background:linear-gradient(160deg,rgba(79,143,255,0.06),rgba(139,92,246,0.06));
+}
+.ns2-plan.featured:hover{
+  box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 60px rgba(139,92,246,0.1);
+}
+.ns2-plan-badge{
+  position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  color:var(--white);font-size:0.58rem;font-weight:600;
+  letter-spacing:0.18em;text-transform:uppercase;
+  padding:0.3rem 1.2rem;border-radius:0 0 4px 4px;white-space:nowrap;
+}
+.ns2-plan-tier{
+  font-size:0.62rem;font-weight:500;letter-spacing:0.25em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:1.5rem;
+}
+.ns2-plan-price{
+  font-family:'Bebas Neue',cursive;
+  font-size:4.5rem;line-height:1;letter-spacing:0.04em;
+  color:var(--white);margin-bottom:0.3rem;
+}
+.ns2-plan-price small{font-size:1.5rem;font-family:'Inter',sans-serif;font-weight:300;}
+.ns2-plan-period{font-size:0.72rem;color:var(--muted);margin-bottom:2.5rem;}
+.ns2-plan-divider{height:1px;background:var(--border);margin-bottom:2rem;}
+.ns2-plan-features{list-style:none;margin-bottom:2.5rem;}
+.ns2-plan-features li{
+  font-size:0.85rem;color:var(--muted);
+  padding:0.5rem 0;display:flex;align-items:center;gap:0.7rem;
+  font-weight:300;border-bottom:1px solid rgba(79,143,255,0.05);
+}
+.ns2-plan-features li:last-child{border-bottom:none;}
+.ns2-plan-features li::before{
+  content:'';width:16px;height:8px;
+  border-left:1.5px solid var(--blue);border-bottom:1.5px solid var(--blue);
+  transform:rotate(-45deg);flex-shrink:0;margin-top:-4px;
+}
+.ns2-plan-btn{
+  width:100%;padding:0.95rem;background:transparent;
+  color:var(--off);font-family:'Inter',sans-serif;
+  font-size:0.72rem;font-weight:600;letter-spacing:0.16em;
+  text-transform:uppercase;border:1px solid rgba(79,143,255,0.25);
+  cursor:none;transition:all .3s;
+}
+.ns2-plan-btn:hover{
+  background:rgba(79,143,255,0.1);border-color:var(--blue);
+  color:var(--blue);
+}
+.ns2-plan-btn.featured-btn{
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  color:var(--white);border:none;
+}
+.ns2-plan-btn.featured-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(79,143,255,0.3);
+}
+
+/* ── TESTIMONIALS ── */
+#ns2-testi{
+  position:relative;z-index:2;
+  background:var(--dark);padding:8rem 2.5rem;
+}
+.ns2-testi-inner{max-width:1300px;margin:0 auto;}
+.ns2-testi-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:5rem;flex-wrap:wrap;gap:2rem;
+}
+.ns2-testi-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(3.5rem,6vw,7rem);
+  line-height:0.9;letter-spacing:0.02em;color:var(--white);
+}
+.ns2-testi-title span{color:var(--blue);}
+.ns2-testi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;
+}
+.ns2-testi-card{
+  background:var(--dark2);border:1px solid var(--border);
+  padding:2.5rem;position:relative;overflow:hidden;
+  transition:all .45s cubic-bezier(.16,1,.3,1);cursor:none;
+}
+.ns2-testi-card::before{
+  content:'"';position:absolute;top:1rem;right:2rem;
+  font-size:8rem;font-family:Georgia,serif;
+  color:rgba(79,143,255,0.05);line-height:1;
+}
+.ns2-testi-card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(79,143,255,0.25);
+}
+.ns2-testi-stars{
+  color:var(--blue);font-size:0.78rem;
+  letter-spacing:0.06em;margin-bottom:1.2rem;
+}
+.ns2-testi-text{
+  font-size:0.9rem;font-weight:300;color:var(--off);
+  line-height:1.85;margin-bottom:2rem;font-style:italic;
+}
+.ns2-testi-author{display:flex;align-items:center;gap:0.9rem;}
+.ns2-testi-av{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:0.8rem;color:var(--white);flex-shrink:0;
+}
+.ns2-testi-name{font-size:0.85rem;font-weight:600;color:var(--white);display:block;}
+.ns2-testi-role{font-size:0.7rem;color:var(--muted);}
+
+/* ── CONTACT ── (Buttermax contact: bold, simple) */
+#ns2-contact{
+  position:relative;z-index:2;
+  background:var(--black);
+  padding:8rem 2.5rem;
+}
+.ns2-contact-inner{max-width:1300px;margin:0 auto;}
+.ns2-contact-top{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8rem;margin-bottom:5rem;
+}
+.ns2-contact-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(4rem,8vw,10rem);
+  line-height:0.88;letter-spacing:0.02em;
+  color:var(--white);
+}
+.ns2-contact-title em{font-style:normal;color:var(--blue);}
+.ns2-contact-right{
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.ns2-contact-body{
+  font-size:0.9rem;font-weight:300;color:var(--muted);
+  line-height:1.9;margin-bottom:2.5rem;
+}
+.ns2-contact-links{list-style:none;}
+.ns2-contact-links li{
+  display:flex;align-items:center;gap:0.8rem;
+  padding:1rem 0;border-bottom:1px solid var(--border);
+  font-size:0.85rem;color:var(--muted);font-weight:300;
+}
+.ns2-contact-links li:last-child{border-bottom:none;}
+.ns2-contact-links a{color:var(--blue);text-decoration:none;cursor:none;transition:color .2s;}
+.ns2-contact-links a:hover{color:var(--cyan);}
+.ns2-ci-icon{
+  width:34px;height:34px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;flex-shrink:0;
+  background:var(--dark2);
+}
+.ns2-form-wrap{
+  background:var(--dark2);border:1px solid var(--border);
+  padding:3rem;position:relative;overflow:hidden;
+}
+.ns2-form-wrap::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+}
+.ns2-field{margin-bottom:1.2rem;}
+.ns2-field label{
+  display:block;font-size:0.58rem;font-weight:500;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--blue);
+  margin-bottom:0.55rem;
+}
+.ns2-field input,.ns2-field select,.ns2-field textarea{
+  width:100%;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(79,143,255,0.12);
+  padding:0.9rem 1rem;
+  font-family:'Inter',sans-serif;font-size:0.87rem;
+  font-weight:300;color:var(--white);outline:none;
+  transition:border-color .2s;-webkit-appearance:none;
+}
+.ns2-field input:focus,.ns2-field select:focus,.ns2-field textarea:focus{
+  border-color:var(--blue);background:rgba(79,143,255,0.03);
+}
+.ns2-field input::placeholder,.ns2-field textarea::placeholder{color:rgba(255,255,255,0.18);}
+.ns2-field textarea{resize:vertical;min-height:110px;}
+.ns2-field select option{background:var(--dark2);}
+.ns2-field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.ns2-submit{
+  width:100%;padding:1.1rem;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  color:var(--white);font-family:'Inter',sans-serif;
+  font-size:0.75rem;font-weight:600;letter-spacing:0.2em;
+  text-transform:uppercase;border:none;cursor:none;transition:all .3s;
+}
+.ns2-submit:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 50px rgba(79,143,255,0.3);
+}
+.ns2-submit:disabled{opacity:0.5;}
+
+/* ── FOOTER ── */
+.ns2-footer{
+  background:var(--dark);border-top:1px solid var(--border);
+  padding:4rem 2.5rem;position:relative;z-index:2;
+}
+.ns2-footer-inner{max-width:1300px;margin:0 auto;}
+.ns2-footer-top{
+  display:grid;grid-template-columns:2fr 1fr 1fr;
+  gap:5rem;margin-bottom:3.5rem;padding-bottom:3.5rem;
+  border-bottom:1px solid var(--border);
+}
+.ns2-footer-logo{
+  font-family:'Bebas Neue',cursive;
+  font-size:1.4rem;letter-spacing:0.08em;color:var(--white);
+  margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;
+}
+.ns2-footer-tagline{
+  font-size:0.83rem;color:var(--muted);line-height:1.8;
+  margin-bottom:1.5rem;font-weight:300;max-width:300px;
+}
+.ns2-footer-contact-item{
+  font-size:0.78rem;color:var(--muted);margin-bottom:0.35rem;
+}
+.ns2-footer-contact-item a{color:var(--blue);text-decoration:none;}
+.ns2-footer-heading{
+  font-size:0.58rem;font-weight:500;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:1.2rem;
+}
+.ns2-footer-links{list-style:none;}
+.ns2-footer-links li{margin-bottom:0.55rem;}
+.ns2-footer-links a{
+  font-size:0.82rem;color:var(--muted);text-decoration:none;
+  cursor:none;transition:color .2s;font-weight:300;
+}
+.ns2-footer-links a:hover{color:var(--blue);}
+.ns2-footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:1rem;
+}
+.ns2-footer-copy{font-size:0.7rem;color:rgba(74,80,128,0.5);}
+
+/* ── MODAL ── */
+.ns2-modal{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(5,5,8,0.92);backdrop-filter:blur(20px);
+  align-items:center;justify-content:center;
+}
+.ns2-modal.show{display:flex;}
+.ns2-modal-box{
+  background:var(--dark2);border:1px solid rgba(79,143,255,0.25);
+  padding:3.5rem;max-width:460px;width:90%;text-align:center;
+  animation:ns2_modal .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes ns2_modal{from{opacity:0;transform:scale(.88) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.ns2-modal-icon{
+  width:60px;height:60px;border:1px solid rgba(79,143,255,0.25);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.5rem;font-size:1.5rem;
+  background:linear-gradient(135deg,rgba(79,143,255,0.1),rgba(139,92,246,0.1));
+}
+.ns2-modal-title{
+  font-family:'Bebas Neue',cursive;
+  font-size:2.5rem;letter-spacing:0.06em;
+  color:var(--white);margin-bottom:0.8rem;
+}
+.ns2-modal-msg{
+  font-size:0.87rem;color:var(--muted);
+  line-height:1.75;margin-bottom:2rem;font-weight:300;
+}
+
+/* ── DIVIDER ── */
+.ns2-divider{
+  height:1px;position:relative;z-index:2;
+  background:linear-gradient(90deg,transparent,rgba(79,143,255,0.2),rgba(139,92,246,0.2),transparent);
+}
+
+/* ── ANIM CLASSES ── */
+.ns2-up{opacity:0;transform:translateY(50px);}
+.ns2-left{opacity:0;transform:translateX(-60px);}
+.ns2-right{opacity:0;transform:translateX(60px);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .ns2-about-inner,.ns2-contact-top{grid-template-columns:1fr;gap:4rem;}
+  .ns2-services-grid{grid-template-columns:1fr;}
+  .ns2-pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto;}
+  .ns2-testi-grid{grid-template-columns:1fr;}
+  .ns2-pricing-header{grid-template-columns:1fr;}
+  .ns2-footer-top{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:768px){
+  .ns2-nav{padding:0 1.5rem;}
+  .ns2-nav-links{display:none;}
+  .ns2-nav-links.open{display:flex;flex-direction:column;position:fixed;top:68px;left:0;right:0;background:rgba(5,5,8,.97);padding:2rem;gap:1.5rem;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);z-index:999;}
+  .ns2-burger{display:flex;}
+  #ns2-hero{padding:0 1.5rem 3rem;}
+  .ns2-hero-bottom{flex-direction:column;align-items:flex-start;gap:1.5rem;}
+  .ns2-hero-actions{align-items:flex-start;}
+  #ns2-about,#ns2-services,#ns2-manifesto,#ns2-pricing,#ns2-testi,#ns2-contact{padding-left:1.5rem;padding-right:1.5rem;}
+  .ns2-srv-card{padding:3rem 2rem;}
+  .ns2-field-row{grid-template-columns:1fr;}
+  .ns2-footer-top{grid-template-columns:1fr;}
+  .ns2-footer-bottom{flex-direction:column;text-align:center;}
+  .ns2-footer{padding:3rem 1.5rem;}
+  .ns2-stats-row{grid-template-columns:1fr 1fr;}
+  body{cursor:auto;}
+  .ns2-cur,.ns2-trail{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="ns2-cur" id="ns2-cur"></div>
+<div class="ns2-trail" id="ns2-trail"></div>
+<div class="ns2-noise"></div>
+<canvas id="ns2-canvas"></canvas>
+
+<!-- ═══ LOADER ═══ -->
+<div class="ns2-loader" id="ns2-loader">
+  <div class="ns2-loader-content">
+    <div class="ns2-loader-word"><span id="ns2-lw1">NOVASITES</span></div>
+    <div class="ns2-loader-word"><span id="ns2-lw2">HQ</span></div>
+    <div class="ns2-loader-sub" id="ns2-lsub">Web Design Agency · NSW Australia</div>
+  </div>
+  <div class="ns2-loader-bar-wrap">
+    <div class="ns2-loader-bar"><div class="ns2-loader-fill" id="ns2-lfill"></div></div>
+    <div class="ns2-loader-num" id="ns2-lnum">0%</div>
+  </div>
+</div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="ns2-nav" id="ns2-nav">
+  <a class="ns2-nav-logo" href="#"><div class="ns2-logo-dot"></div>NovaSites HQ</a>
+  <ul class="ns2-nav-links" id="ns2-nl">
+    <li><a href="#ns2-about" onclick="ns2CloseMenu()">About</a></li>
+    <li><a href="#ns2-services" onclick="ns2CloseMenu()">Services</a></li>
+    <li><a href="#ns2-pricing" onclick="ns2CloseMenu()">Pricing</a></li>
+    <li><a href="#ns2-testi" onclick="ns2CloseMenu()">Testimonials</a></li>
+    <li><a href="#ns2-contact" onclick="ns2CloseMenu()" class="ns2-nav-cta">Get a Quote</a></li>
+  </ul>
+  <div class="ns2-burger" id="ns2-burger" onclick="ns2ToggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="ns2-hero">
+  <div class="ns2-hero-status" id="ns2-status">
+    <div class="ns2-hero-status-dot"></div>
+    Available for new projects
+  </div>
+  <div class="ns2-hero-index" id="ns2-idx">NSW · AU</div>
+
+  <div class="ns2-hero-main">
+    <h1 class="ns2-hero-title">
+      <span class="ns2-title-row">
+        <span class="ns2-title-row-inner">
+          <span>WE BUILD</span>
+        </span>
+      </span>
+      <span class="ns2-title-row">
+        <span class="ns2-title-row-inner">
+          <span class="ns2-title-blue">WEBSITES</span>
+          <span class="ns2-title-pill">⚡ 48hr Delivery</span>
+        </span>
+      </span>
+      <span class="ns2-title-row">
+        <span class="ns2-title-row-inner">
+          <span class="ns2-title-outline">THAT DEMAND</span>
+        </span>
+      </span>
+      <span class="ns2-title-row">
+        <span class="ns2-title-row-inner">
+          <span>ATTENTION.</span>
+        </span>
+      </span>
+    </h1>
+
+    <div class="ns2-hero-bottom">
+      <p class="ns2-hero-desc" id="ns2-hdesc">NovaSites HQ crafts high-performance websites and digital experiences for businesses across Australia. Fast. Stunning. Results-driven.</p>
+      <div class="ns2-hero-actions" id="ns2-hacts">
+        <button class="ns2-hero-cta" onclick="document.getElementById('ns2-contact').scrollIntoView({behavior:'smooth'})"><span>Start a Project →</span></button>
+        <div class="ns2-hero-scroll"><div class="ns2-scroll-line"></div>Scroll to explore</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="ns2-marquee">
+  <div class="ns2-marquee-track">
+    <div class="ns2-marquee-item">Website Design<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Web Development<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">E-Commerce<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Maintenance & Support<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">48hr Turnaround<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">NSW South Coast<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Premium Quality<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Website Design<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Web Development<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">E-Commerce<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Maintenance & Support<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">48hr Turnaround<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">NSW South Coast<div class="ns2-marq-sep"></div></div>
+    <div class="ns2-marquee-item">Premium Quality<div class="ns2-marq-sep"></div></div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="ns2-about">
+  <div class="ns2-about-inner">
+    <div>
+      <div class="ns2-section-label ns2-up">About NovaSites HQ</div>
+      <h2 class="ns2-about-title ns2-up">The Agency<br>Built for <em>Results.</em></h2>
+      <p class="ns2-about-body ns2-up">NovaSites HQ is a premium web design and development agency based on the NSW South Coast. We don't do templates. We don't do average. Every site we build is a custom, hand-crafted digital experience designed to make your business stand out, convert visitors, and perform under pressure.</p>
+      <div class="ns2-stats-row">
+        <div class="ns2-stat ns2-up"><div class="ns2-stat-num" data-target="100" data-suffix="+">0+</div><div class="ns2-stat-label">Projects Delivered</div></div>
+        <div class="ns2-stat ns2-up"><div class="ns2-stat-num" data-target="48" data-suffix="hr">0hr</div><div class="ns2-stat-label">Avg Turnaround</div></div>
+        <div class="ns2-stat ns2-up"><div class="ns2-stat-num" data-target="98" data-suffix="%">0%</div><div class="ns2-stat-label">Client Satisfaction</div></div>
+        <div class="ns2-stat ns2-up"><div class="ns2-stat-num" data-target="3" data-suffix="+">0+</div><div class="ns2-stat-label">Years Experience</div></div>
+      </div>
+    </div>
+    <div class="ns2-right">
+      <div class="ns2-about-visual">
+        <ul class="ns2-services-list">
+          <li class="ns2-service-row">
+            <span class="ns2-service-num">01</span>
+            <span class="ns2-service-name">Website Design</span>
+            <span class="ns2-service-tag">UI/UX</span>
+            <span class="ns2-service-arrow">→</span>
+          </li>
+          <li class="ns2-service-row">
+            <span class="ns2-service-num">02</span>
+            <span class="ns2-service-name">Web Development</span>
+            <span class="ns2-service-tag">React / JS</span>
+            <span class="ns2-service-arrow">→</span>
+          </li>
+          <li class="ns2-service-row">
+            <span class="ns2-service-num">03</span>
+            <span class="ns2-service-name">E-Commerce</span>
+            <span class="ns2-service-tag">Shopify</span>
+            <span class="ns2-service-arrow">→</span>
+          </li>
+          <li class="ns2-service-row">
+            <span class="ns2-service-num">04</span>
+            <span class="ns2-service-name">Maintenance & Support</span>
+            <span class="ns2-service-tag">Ongoing</span>
+            <span class="ns2-service-arrow">→</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ns2-divider"></div>
+
+<!-- ═══ SERVICES DEEP-DIVE ═══ -->
+<section id="ns2-services">
+  <div class="ns2-services-grid">
+    <div class="ns2-srv-card ns2-up">
+      <div class="ns2-srv-num">01</div>
+      <div class="ns2-srv-icon">🎨</div>
+      <h3 class="ns2-srv-title">Website Design</h3>
+      <p class="ns2-srv-desc">Custom, pixel-perfect designs built from scratch — no templates, no shortcuts. Every site is tailored to your brand, your audience, and your goals. We combine stunning visuals with intuitive UX that keeps visitors engaged and converts them into customers.</p>
+      <div class="ns2-srv-tags"><span class="ns2-tag">UI/UX Design</span><span class="ns2-tag">Figma</span><span class="ns2-tag">Custom Design</span><span class="ns2-tag">Mobile-First</span><span class="ns2-tag">Brand Identity</span></div>
+    </div>
+    <div class="ns2-srv-card ns2-up">
+      <div class="ns2-srv-num">02</div>
+      <div class="ns2-srv-icon">⚡</div>
+      <h3 class="ns2-srv-title">Web Development</h3>
+      <p class="ns2-srv-desc">Lightning-fast, clean code that performs under pressure. We build with modern technologies — HTML5, CSS3, JavaScript, React and more — ensuring your site loads instantly, ranks well in search engines, and works flawlessly across every device and browser.</p>
+      <div class="ns2-srv-tags"><span class="ns2-tag">HTML/CSS/JS</span><span class="ns2-tag">React</span><span class="ns2-tag">Performance</span><span class="ns2-tag">SEO Ready</span><span class="ns2-tag">Fast Loading</span></div>
+    </div>
+    <div class="ns2-srv-card ns2-up">
+      <div class="ns2-srv-num">03</div>
+      <div class="ns2-srv-icon">🛒</div>
+      <h3 class="ns2-srv-title">E-Commerce</h3>
+      <p class="ns2-srv-desc">Turn your website into a revenue machine. We build high-converting online stores with seamless checkout, inventory management, payment gateway integration, and mobile-optimised product pages designed to sell around the clock, every day of the year.</p>
+      <div class="ns2-srv-tags"><span class="ns2-tag">Shopify</span><span class="ns2-tag">WooCommerce</span><span class="ns2-tag">Payments</span><span class="ns2-tag">Conversion</span><span class="ns2-tag">Mobile</span></div>
+    </div>
+    <div class="ns2-srv-card ns2-up">
+      <div class="ns2-srv-num">04</div>
+      <div class="ns2-srv-icon">🔧</div>
+      <h3 class="ns2-srv-title">Maintenance & Support</h3>
+      <p class="ns2-srv-desc">Your website is a living asset — it needs ongoing care. We offer maintenance packages to keep your site secure, up to date and performing at its best. Updates, backups, security patches, and priority support whenever you need it. We've got you covered.</p>
+      <div class="ns2-srv-tags"><span class="ns2-tag">Updates</span><span class="ns2-tag">Security</span><span class="ns2-tag">Backups</span><span class="ns2-tag">Priority Support</span><span class="ns2-tag">Monitoring</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="ns2-divider"></div>
+
+<!-- ═══ MANIFESTO / BIG TEXT ═══ (Buttermax kinetic type) -->
+<section id="ns2-manifesto">
+  <div class="ns2-manifesto-inner">
+    <div class="ns2-manifesto-eyebrow">Our Philosophy</div>
+    <div class="ns2-big-line">
+      <span class="ns2-big-line-text">WE DON'T</span>
+      <div class="ns2-big-line-badge">Est. NSW Australia</div>
+    </div>
+    <div class="ns2-big-line">
+      <span class="ns2-big-line-text blue">BUILD</span>
+      <span class="ns2-big-line-text">&nbsp;AVERAGE</span>
+    </div>
+    <div class="ns2-big-line">
+      <span class="ns2-big-line-text outline">WEBSITES.</span>
+    </div>
+    <div class="ns2-big-line">
+      <span class="ns2-big-line-text">WE BUILD</span>
+    </div>
+    <div class="ns2-big-line">
+      <span class="ns2-big-line-text blue">EXPERIENCES.</span>
+    </div>
+  </div>
+</section>
+
+<div class="ns2-divider"></div>
+
+<!-- ═══ PRICING ═══ -->
+<section id="ns2-pricing">
+  <div class="ns2-pricing-header">
+    <div>
+      <div class="ns2-section-label ns2-up">Transparent Pricing</div>
+      <h2 class="ns2-pricing-title ns2-up">No<br>Hidden<br><span>Fees.</span></h2>
+    </div>
+    <p class="ns2-pricing-body ns2-up">Every package includes a custom design, mobile-optimised development, and everything you need to launch with confidence. No lock-in contracts, no surprises, no catch.</p>
+  </div>
+  <div class="ns2-pricing-grid">
+    <div class="ns2-plan ns2-up">
+      <div class="ns2-plan-tier">Starter</div>
+      <div class="ns2-plan-price"><small>$</small>499</div>
+      <div class="ns2-plan-period">one-time payment</div>
+      <div class="ns2-plan-divider"></div>
+      <ul class="ns2-plan-features">
+        <li>Up to 5 pages</li>
+        <li>Custom design</li>
+        <li>Mobile responsive</li>
+        <li>Contact form</li>
+        <li>48hr turnaround</li>
+        <li>1 round of revisions</li>
+      </ul>
+      <button class="ns2-plan-btn" onclick="document.getElementById('ns2-contact').scrollIntoView({behavior:'smooth'})">Get Started</button>
+    </div>
+    <div class="ns2-plan featured ns2-up">
+      <div class="ns2-plan-badge">Most Popular</div>
+      <div class="ns2-plan-tier">Professional</div>
+      <div class="ns2-plan-price"><small>$</small>1,299</div>
+      <div class="ns2-plan-period">one-time payment</div>
+      <div class="ns2-plan-divider"></div>
+      <ul class="ns2-plan-features">
+        <li>Up to 10 pages</li>
+        <li>Premium custom design</li>
+        <li>Advanced animations</li>
+        <li>E-commerce ready</li>
+        <li>SEO optimised</li>
+        <li>3 rounds of revisions</li>
+        <li>1 month free support</li>
+      </ul>
+      <button class="ns2-plan-btn featured-btn" onclick="document.getElementById('ns2-contact').scrollIntoView({behavior:'smooth'})">Get Started</button>
+    </div>
+    <div class="ns2-plan ns2-up">
+      <div class="ns2-plan-tier">Enterprise</div>
+      <div class="ns2-plan-price"><small>$</small>3,999</div>
+      <div class="ns2-plan-period">one-time payment</div>
+      <div class="ns2-plan-divider"></div>
+      <ul class="ns2-plan-features">
+        <li>Unlimited pages</li>
+        <li>Full custom development</li>
+        <li>E-commerce store</li>
+        <li>Custom integrations</li>
+        <li>Priority support</li>
+        <li>Unlimited revisions</li>
+        <li>3 months free support</li>
+      </ul>
+      <button class="ns2-plan-btn" onclick="document.getElementById('ns2-contact').scrollIntoView({behavior:'smooth'})">Get Started</button>
+    </div>
+  </div>
+</section>
+
+<div class="ns2-divider"></div>
+
+<!-- ═══ TESTIMONIALS ═══ -->
+<section id="ns2-testi">
+  <div class="ns2-testi-inner">
+    <div class="ns2-testi-header">
+      <h2 class="ns2-testi-title ns2-up">Clients<br>Who <span>Trust Us.</span></h2>
+    </div>
+    <div class="ns2-testi-grid">
+      <div class="ns2-testi-card ns2-up">
+        <div class="ns2-testi-stars">★★★★★</div>
+        <p class="ns2-testi-text">"NovaSites HQ completely transformed our online presence. The site they built is stunning — fast, modern, and our enquiries have doubled since launch. Best investment we've ever made for the business."</p>
+        <div class="ns2-testi-author"><div class="ns2-testi-av">JM</div><div><span class="ns2-testi-name">James Mitchell</span><span class="ns2-testi-role">Owner · Mitchell Plumbing NSW</span></div></div>
+      </div>
+      <div class="ns2-testi-card ns2-up">
+        <div class="ns2-testi-stars">★★★★★</div>
+        <p class="ns2-testi-text">"Incredible work and insanely fast. We had our entire e-commerce store live within 48 hours. The design and animations blew our customers away. 100% recommend NovaSites HQ to anyone."</p>
+        <div class="ns2-testi-author"><div class="ns2-testi-av">SC</div><div><span class="ns2-testi-name">Sarah Chen</span><span class="ns2-testi-role">Director · Pacific Surf Co.</span></div></div>
+      </div>
+      <div class="ns2-testi-card ns2-up">
+        <div class="ns2-testi-stars">★★★★★</div>
+        <p class="ns2-testi-text">"Professional, communicative, and the results speak for themselves. Our new website looks like it cost 10x what we paid. NovaSites HQ delivers premium quality at a genuinely fair price."</p>
+        <div class="ns2-testi-author"><div class="ns2-testi-av">TR</div><div><span class="ns2-testi-name">Tom Rafferty</span><span class="ns2-testi-role">CEO · Coastal Property Group</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ns2-divider"></div>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="ns2-contact">
+  <div class="ns2-contact-inner">
+    <div class="ns2-contact-top">
+      <div class="ns2-left">
+        <div class="ns2-section-label">Let's Work Together</div>
+        <h2 class="ns2-contact-title">Start<br>Your<br><em>Project.</em></h2>
+      </div>
+      <div class="ns2-contact-right ns2-right">
+        <p class="ns2-contact-body">Ready to take your online presence to the next level? Tell us about your project and we'll get back to you within a few hours. No obligation, no pressure.</p>
+        <ul class="ns2-contact-links">
+          <li><div class="ns2-ci-icon">📧</div><a href="mailto:NovaSitesHQ12@gmail.com">NovaSitesHQ12@gmail.com</a></li>
+          <li><div class="ns2-ci-icon">📞</div><a href="tel:0468747619">0468 747 619</a></li>
+          <li><div class="ns2-ci-icon">📍</div>NSW South Coast, Australia</li>
+          <li><div class="ns2-ci-icon">⚡</div>48hr average turnaround</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ns2-form-wrap ns2-up">
+      <div class="ns2-field-row">
+        <div class="ns2-field"><label>First Name</label><input type="text" id="ns2-fn" placeholder="John"></div>
+        <div class="ns2-field"><label>Last Name</label><input type="text" id="ns2-ln" placeholder="Smith"></div>
+      </div>
+      <div class="ns2-field-row">
+        <div class="ns2-field"><label>Email</label><input type="email" id="ns2-em" placeholder="john@business.com.au"></div>
+        <div class="ns2-field"><label>Business Name</label><input type="text" id="ns2-biz" placeholder="Your Business"></div>
+      </div>
+      <div class="ns2-field">
+        <label>Service Needed</label>
+        <select id="ns2-svc">
+          <option value="">Select a service...</option>
+          <option>Website Design</option>
+          <option>Web Development</option>
+          <option>E-Commerce Store</option>
+          <option>Maintenance & Support</option>
+          <option>Full Package</option>
+        </select>
+      </div>
+      <div class="ns2-field"><label>Tell Us About Your Project</label><textarea id="ns2-msg" placeholder="What are you looking for? Any details help us prepare..."></textarea></div>
+      <button class="ns2-submit" id="ns2-submit-btn" onclick="ns2Submit()">Send Enquiry →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="ns2-footer">
+  <div class="ns2-footer-inner">
+    <div class="ns2-footer-top">
+      <div>
+        <div class="ns2-footer-logo"><div class="ns2-logo-dot"></div>NovaSites HQ</div>
+        <p class="ns2-footer-tagline">Premium web design and development for Australian businesses. Fast, beautiful, and built to perform.</p>
+        <div class="ns2-footer-contact-item">📧 <a href="mailto:NovaSitesHQ12@gmail.com">NovaSitesHQ12@gmail.com</a></div>
+        <div class="ns2-footer-contact-item" style="margin-top:.3rem">📞 <a href="tel:0468747619">0468 747 619</a></div>
+        <div class="ns2-footer-contact-item" style="margin-top:.3rem">📍 NSW South Coast, Australia</div>
+      </div>
+      <div>
+        <div class="ns2-footer-heading">Services</div>
+        <ul class="ns2-footer-links">
+          <li><a href="#ns2-services">Website Design</a></li>
+          <li><a href="#ns2-services">Web Development</a></li>
+          <li><a href="#ns2-services">E-Commerce</a></li>
+          <li><a href="#ns2-services">Maintenance & Support</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="ns2-footer-heading">Company</div>
+        <ul class="ns2-footer-links">
+          <li><a href="#ns2-about">About</a></li>
+          <li><a href="#ns2-pricing">Pricing</a></li>
+          <li><a href="#ns2-testi">Testimonials</a></li>
+          <li><a href="#ns2-contact">Contact</a></li>
+          <li><a href="#ns2-contact">Get a Quote</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ns2-footer-bottom">
+      <span class="ns2-footer-copy">© 2025 NovaSites HQ · NSW South Coast, Australia</span>
+      <span class="ns2-footer-copy">Built by NovaSites HQ</span>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="ns2-modal" id="ns2-modal" onclick="if(event.target===this)ns2CloseModal()">
+  <div class="ns2-modal-box">
+    <div class="ns2-modal-icon">✓</div>
+    <h2 class="ns2-modal-title" id="ns2-modal-title">Enquiry Sent!</h2>
+    <p class="ns2-modal-msg" id="ns2-modal-msg">Thanks! We'll be in touch shortly.</p>
+    <button class="ns2-hero-cta" onclick="ns2CloseModal()" style="width:100%;margin-top:1rem"><span>Close</span></button>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ═══ CURSOR (Buttermax reactive cursor — prefix c2_) ═══
+var c2_el=document.getElementById('ns2-cur');
+var c2_trail=document.getElementById('ns2-trail');
+var c2_cx=0,c2_cy=0,c2_tx=0,c2_ty=0;
+document.addEventListener('mousemove',function(e){c2_cx=e.clientX;c2_cy=e.clientY;});
+document.addEventListener('mousedown',function(){if(c2_el)c2_el.classList.add('click');});
+document.addEventListener('mouseup',function(){if(c2_el)c2_el.classList.remove('click');});
+(function c2_loop(){
+  if(c2_el)c2_el.style.transform='translate('+(c2_cx-6)+'px,'+(c2_cy-6)+'px)';
+  c2_tx+=(c2_cx-c2_tx)*0.1;c2_ty+=(c2_cy-c2_ty)*0.1;
+  if(c2_trail)c2_trail.style.transform='translate('+(c2_tx-22)+'px,'+(c2_ty-22)+'px)';
+  requestAnimationFrame(c2_loop);
+})();
+document.querySelectorAll('a,button,.ns2-service-row,.ns2-srv-card,.ns2-plan,.ns2-testi-card').forEach(function(el){
+  el.addEventListener('mouseenter',function(){if(c2_el)c2_el.classList.add('hover');});
+  el.addEventListener('mouseleave',function(){if(c2_el)c2_el.classList.remove('hover');});
+});
+
+// ═══ LOADER ═══
+window.addEventListener('load',function(){
+  var fill=document.getElementById('ns2-lfill');
+  var num=document.getElementById('ns2-lnum');
+  var lsub=document.getElementById('ns2-lsub');
+  // Slide in words
+  gsap.to('#ns2-lw1',{y:0,duration:0.8,ease:'power3.out',delay:0.1});
+  gsap.to('#ns2-lw2',{y:0,duration:0.8,ease:'power3.out',delay:0.25});
+  gsap.to(lsub,{opacity:1,duration:0.6,delay:0.6});
+  // Count bar
+  var prog={val:0};
+  gsap.to(prog,{val:100,duration:1.4,ease:'power2.inOut',delay:0.3,onUpdate:function(){
+    var v=Math.round(prog.val);
+    fill.style.width=v+'%';
+    num.textContent=v+'%';
+  },onComplete:function(){
+    gsap.to('#ns2-loader',{
+      yPercent:-100,duration:0.9,ease:'power3.inOut',delay:0.2,
+      onComplete:function(){
+        document.getElementById('ns2-loader').style.display='none';
+        ns2InitHero();
+      }
+    });
+  }});
+});
+
+// ═══ HERO ENTRANCE ═══
+function ns2InitHero(){
+  gsap.set(['#ns2-status','#ns2-idx'],{opacity:0,y:-10});
+  gsap.set('#ns2-hdesc',{opacity:0,y:20});
+  gsap.set('#ns2-hacts',{opacity:0,y:20});
+  // Title rows
+  var tl=gsap.timeline();
+  tl.to('#ns2-status',{opacity:1,y:0,duration:0.6,ease:'power3.out'})
+    .to('#ns2-idx',{opacity:1,y:0,duration:0.6,ease:'power3.out'},'-=0.5')
+    .to('.ns2-title-row-inner',{y:0,duration:1.1,ease:'power4.out',stagger:0.1},'-=0.3')
+    .to('#ns2-hdesc',{opacity:1,y:0,duration:0.9,ease:'power3.out'},'-=0.6')
+    .to('#ns2-hacts',{opacity:1,y:0,duration:0.9,ease:'power3.out'},'-=0.7');
+  // Hero parallax
+  gsap.to('.ns2-hero-title',{y:-80,ease:'none',scrollTrigger:{trigger:'#ns2-hero',start:'top top',end:'bottom top',scrub:1.2}});
+  ns2InitScrollAni();
+}
+
+// ═══ SCROLL ANIMATIONS ═══
+function ns2InitScrollAni(){
+  ScrollTrigger.refresh();
+
+  // General up
+  document.querySelectorAll('.ns2-up:not(.ns2-done)').forEach(function(el){
+    el.classList.add('ns2-done');
+    var d=parseFloat(el.dataset.d)||0;
+    gsap.fromTo(el,{opacity:0,y:55},{opacity:1,y:0,duration:0.95,ease:'power3.out',delay:d,
+      scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+  });
+  document.querySelectorAll('.ns2-left:not(.ns2-done)').forEach(function(el){
+    el.classList.add('ns2-done');
+    gsap.fromTo(el,{opacity:0,x:-70},{opacity:1,x:0,duration:1.05,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none none'}});
+  });
+  document.querySelectorAll('.ns2-right:not(.ns2-done)').forEach(function(el){
+    el.classList.add('ns2-done');
+    gsap.fromTo(el,{opacity:0,x:70},{opacity:1,x:0,duration:1.05,ease:'power3.out',
+      scrollTrigger:{trigger:el,start:'top 85%',toggleActions:'play none none none'}});
+  });
+
+  // Big manifesto lines — slide up with stagger (Buttermax signature)
+  document.querySelectorAll('.ns2-big-line-text:not(.ns2-done),.ns2-big-line-badge:not(.ns2-done)').forEach(function(el,i){
+    el.classList.add('ns2-done');
+    gsap.to(el,{y:0,duration:1.1,ease:'power4.out',delay:i*0.08,
+      scrollTrigger:{trigger:el.parentElement,start:'top 88%',toggleActions:'play none none none'}});
+  });
+
+  // Stat counters
+  document.querySelectorAll('.ns2-stat-num:not(.ns2-counted)').forEach(function(el){
+    el.classList.add('ns2-counted');
+    var target=parseInt(el.dataset.target);
+    var suffix=el.dataset.suffix||'+';
+    ScrollTrigger.create({trigger:el,start:'top 85%',once:true,onEnter:function(){
+      var obj={v:0};
+      gsap.to(obj,{v:target,duration:2,ease:'power2.out',onUpdate:function(){el.textContent=Math.round(obj.v)+suffix;}});
+    }});
+  });
+
+  // Pricing card tilt
+  document.querySelectorAll('.ns2-plan:not(.ns2-tilt)').forEach(function(card){
+    card.classList.add('ns2-tilt');
+    card.addEventListener('mousemove',function(e){
+      var r=card.getBoundingClientRect();
+      var x=((e.clientX-r.left)/r.width-.5)*12;
+      var y=-((e.clientY-r.top)/r.height-.5)*12;
+      gsap.to(card,{rotateX:y,rotateY:x,duration:0.4,ease:'power2.out',transformPerspective:700});
+    });
+    card.addEventListener('mouseleave',function(){gsap.to(card,{rotateX:0,rotateY:0,duration:0.5,ease:'power3.out'});});
+  });
+
+  // Service card subtle parallax on scroll
+  document.querySelectorAll('.ns2-srv-card:not(.ns2-srv-done)').forEach(function(el,i){
+    el.classList.add('ns2-srv-done');
+    gsap.fromTo(el,{opacity:0,y:60},{opacity:1,y:0,duration:1,ease:'power3.out',delay:i*0.1,
+      scrollTrigger:{trigger:el,start:'top 90%',toggleActions:'play none none none'}});
+  });
+}
+
+// ═══ THREE.JS BACKGROUND (prefix bg2_) ═══
+(function(){
+  var bg2_canvas=document.getElementById('ns2-canvas');
+  var bg2_r=new THREE.WebGLRenderer({canvas:bg2_canvas,antialias:true,alpha:true});
+  bg2_r.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  bg2_r.setSize(window.innerWidth,window.innerHeight);
+  bg2_r.setClearColor(0,0);
+  var bg2_sc=new THREE.Scene();
+  var bg2_cam=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,100);
+  bg2_cam.position.z=7;
+
+  // Large central wireframe icosahedron (Buttermax 3D feel)
+  var bg2_geo1=new THREE.IcosahedronGeometry(2.4,1);
+  var bg2_m1=new THREE.Mesh(bg2_geo1,new THREE.MeshBasicMaterial({color:0x4f8fff,wireframe:true,transparent:true,opacity:0.055}));
+  bg2_sc.add(bg2_m1);
+  var bg2_m2=new THREE.Mesh(new THREE.IcosahedronGeometry(3.6,1),new THREE.MeshBasicMaterial({color:0x8b5cf6,wireframe:true,transparent:true,opacity:0.035}));
+  bg2_sc.add(bg2_m2);
+
+  // Floating accent shapes
+  var bg2_shapes=[];
+  var bg2_sd=[
+    {g:new THREE.OctahedronGeometry(0.38,0),p:[-4.5,2,-3],c:0x4f8fff,e:0.2},
+    {g:new THREE.TetrahedronGeometry(0.32),p:[4.2,-1.5,-4],c:0x8b5cf6,e:0.18},
+    {g:new THREE.OctahedronGeometry(0.28,0),p:[-3,-2.5,-2],c:0x00d4ff,e:0.25},
+    {g:new THREE.TetrahedronGeometry(0.3),p:[3.8,2.8,-3.5],c:0x4f8fff,e:0.15},
+    {g:new THREE.OctahedronGeometry(0.22,0),p:[-1.5,2.5,-5],c:0x8b5cf6,e:0.2},
+    {g:new THREE.TetrahedronGeometry(0.25),p:[2.8,-2.8,-2],c:0x4f8fff,e:0.18},
+    {g:new THREE.OctahedronGeometry(0.18,0),p:[-4.5,-0.5,-3.5],c:0x00d4ff,e:0.22},
+    {g:new THREE.TetrahedronGeometry(0.2),p:[4,-0.8,-2.5],c:0x8b5cf6,e:0.16},
+  ];
+  bg2_sd.forEach(function(d){
+    var mat=new THREE.MeshStandardMaterial({color:d.c,roughness:0.1,metalness:0.9,emissive:d.c,emissiveIntensity:d.e,transparent:true,opacity:0.85});
+    var mesh=new THREE.Mesh(d.g,mat);
+    mesh.position.set(d.p[0],d.p[1],d.p[2]);
+    mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,0);
+    bg2_sc.add(mesh);
+    bg2_shapes.push({m:mesh,s:0.003+Math.random()*0.005,o:Math.random()*Math.PI*2});
+  });
+
+  // Particle cloud — blue/purple mix
+  var bg2_pN=1400;
+  var bg2_pp=new Float32Array(bg2_pN*3);
+  var bg2_pc=new Float32Array(bg2_pN*3);
+  for(var i=0;i<bg2_pN;i++){
+    bg2_pp[i*3]=(Math.random()-.5)*28;
+    bg2_pp[i*3+1]=(Math.random()-.5)*28;
+    bg2_pp[i*3+2]=(Math.random()-.5)*14-3;
+    var useBlue=Math.random()>0.4;
+    bg2_pc[i*3]=useBlue?0.31:0.545;
+    bg2_pc[i*3+1]=useBlue?0.56:0.361;
+    bg2_pc[i*3+2]=useBlue?1:0.965;
+  }
+  var bg2_pg=new THREE.BufferGeometry();
+  bg2_pg.setAttribute('position',new THREE.BufferAttribute(bg2_pp,3));
+  bg2_pg.setAttribute('color',new THREE.BufferAttribute(bg2_pc,3));
+  var bg2_pts=new THREE.Points(bg2_pg,new THREE.PointsMaterial({size:0.022,vertexColors:true,transparent:true,opacity:0.55}));
+  bg2_sc.add(bg2_pts);
+
+  // Rings
+  var bg2_rings=[];
+  [[2.6,0x4f8fff,0.07],[4.0,0x8b5cf6,0.045],[5.5,0x00d4ff,0.025]].forEach(function(d,i){
+    var rm=new THREE.Mesh(new THREE.TorusGeometry(d[0],0.006,2,100),new THREE.MeshBasicMaterial({color:d[1],transparent:true,opacity:d[2]}));
+    rm.rotation.x=0.5+i*0.35;bg2_sc.add(rm);bg2_rings.push(rm);
+  });
+
+  bg2_sc.add(new THREE.AmbientLight(0x0a0a28,3));
+  var bg2_pl1=new THREE.PointLight(0x4f8fff,3,22);bg2_pl1.position.set(5,5,4);bg2_sc.add(bg2_pl1);
+  var bg2_pl2=new THREE.PointLight(0x8b5cf6,2,20);bg2_pl2.position.set(-5,-3,2);bg2_sc.add(bg2_pl2);
+  var bg2_pl3=new THREE.PointLight(0x00d4ff,1.5,16);bg2_pl3.position.set(0,0,6);bg2_sc.add(bg2_pl3);
+
+  var bg2_mx=0,bg2_my=0,bg2_sy=0;
+  document.addEventListener('mousemove',function(e){
+    bg2_mx=(e.clientX/window.innerWidth-.5)*0.55;
+    bg2_my=-(e.clientY/window.innerHeight-.5)*0.38;
+  });
+  window.addEventListener('scroll',function(){bg2_sy=window.scrollY;});
+
+  var bg2_t=0;
+  (function bg2_tick(){
+    requestAnimationFrame(bg2_tick);bg2_t+=0.005;
+    bg2_sc.rotation.y+=(bg2_mx*.28-bg2_sc.rotation.y)*.04;
+    bg2_sc.rotation.x+=(bg2_my*.2-bg2_sc.rotation.x)*.04;
+    bg2_cam.position.y=-bg2_sy*.0014;
+    bg2_m1.rotation.y=bg2_t*.07;bg2_m1.rotation.x=bg2_t*.045;
+    bg2_m2.rotation.y=-bg2_t*.055;bg2_m2.rotation.z=bg2_t*.035;
+    bg2_shapes.forEach(function(s){
+      s.m.rotation.x+=s.s;s.m.rotation.y+=s.s*1.4;
+      s.m.position.y+=Math.sin(bg2_t+s.o)*0.0015;
+    });
+    bg2_rings.forEach(function(r,i){r.rotation.z+=0.0008*(i+1);r.rotation.x+=0.0004*(i+1);});
+    bg2_pts.rotation.y+=0.00018;bg2_pts.rotation.x+=0.0001;
+    // Breathing light (Buttermax pulsing energy feel)
+    bg2_pl1.intensity=2.5+Math.sin(bg2_t*0.9)*0.6;
+    bg2_pl2.intensity=1.8+Math.cos(bg2_t*0.7)*0.4;
+    bg2_r.render(bg2_sc,bg2_cam);
+  })();
+  window.addEventListener('resize',function(){
+    bg2_cam.aspect=window.innerWidth/window.innerHeight;
+    bg2_cam.updateProjectionMatrix();
+    bg2_r.setSize(window.innerWidth,window.innerHeight);
+  });
+})();
+
+// ═══ NAV ═══
+window.addEventListener('scroll',function(){
+  var nav=document.getElementById('ns2-nav');
+  if(window.scrollY>60)nav.classList.add('solid');else nav.classList.remove('solid');
+});
+function ns2ToggleMenu(){document.getElementById('ns2-nl').classList.toggle('open');}
+function ns2CloseMenu(){document.getElementById('ns2-nl').classList.remove('open');}
+
+// ═══ CONTACT FORM ═══
+async function ns2Submit(){
+  var fn=document.getElementById('ns2-fn').value.trim();
+  var ln=document.getElementById('ns2-ln').value.trim();
+  var em=document.getElementById('ns2-em').value.trim();
+  var biz=document.getElementById('ns2-biz').value.trim();
+  var svc=document.getElementById('ns2-svc').value;
+  var msg=document.getElementById('ns2-msg').value.trim();
+  if(!fn){alert('Please enter your first name.');return;}
+  if(!em||em.indexOf('@')<0){alert('Please enter a valid email.');return;}
+  if(!svc){alert('Please select a service.');return;}
+  var btn=document.getElementById('ns2-submit-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    var res=await fetch('https://formspree.io/f/mojpnevw',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        _subject:'New Enquiry — NovaSites HQ ('+svc+')',
+        Name:fn+' '+ln,Email:em,
+        Business:biz||'Not provided',
+        Service:svc,Message:msg||'No message',
+        _replyto:em
+      })
+    });
+    if(res.ok){
+      document.getElementById('ns2-modal-title').textContent='Enquiry Sent!';
+      document.getElementById('ns2-modal-msg').textContent='Thanks '+fn+'! We\'ve received your enquiry and will be in touch at '+em+' within a few hours.';
+      document.getElementById('ns2-modal').classList.add('show');
+    } else {
+      alert('Something went wrong. Please email us at NovaSitesHQ12@gmail.com');
+    }
+  }catch(e){
+    alert('Something went wrong. Please email us at NovaSitesHQ12@gmail.com');
+  }
+  btn.textContent='Send Enquiry →';btn.disabled=false;
+}
+function ns2CloseModal(){document.getElementById('ns2-modal').classList.remove('show');}
+</script>
+</body>
+</html>
